@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TX1 / TX2 — Memcoin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141311; --ink-2:#3a3732;
+    --paper:#f6f3ec; --paper-2:#efebe2;
+    --muted:#8a867c; --rule:#d9d4c7;
+    --accent:#a66a12; --accent-2:#cf8a25; --accent-soft:#ecd9ad;
+    --sans:"Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);margin:0;font-family:var(--sans)}
+  a{color:var(--accent)}
+  a:hover{color:var(--ink)}
+
+  .nav{position:sticky;top:0;z-index:20;background:rgba(246,243,236,0.92);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--rule)}
+  .nav-inner{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:28px}
+  .brand{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:0.06em;display:flex;align-items:center;text-decoration:none;color:var(--ink)}
+  .brand .mark{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);font-family:var(--mono);font-weight:500;font-size:26px;line-height:1;margin-top:-2px}
+  .navlinks{display:flex;gap:22px;flex:1}
+  .navlinks a{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none;text-transform:lowercase}
+  .navlinks a:hover{color:var(--ink)}
+  .nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;padding:9px 16px;background:var(--ink);color:var(--paper);text-decoration:none}
+  .nav-cta:hover{background:var(--accent)}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent)}
+
+  .hero{padding:80px 0 60px;border-bottom:1px solid var(--rule)}
+  .hero h1{font-family:var(--sans);font-weight:700;font-size:76px;line-height:0.98;letter-spacing:-0.03em;margin:16px 0 22px;max-width:1000px}
+  .hero .lead{font-size:19px;line-height:1.6;color:var(--ink-2);max-width:700px;margin:0}
+
+  .section{padding:76px 0;border-bottom:1px solid var(--rule)}
+  .section-head{display:flex;align-items:baseline;gap:18px;margin-bottom:8px}
+  .section-head .tag{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:0.18em;text-transform:uppercase}
+  .section h2{font-family:var(--sans);font-weight:700;font-size:44px;line-height:1.08;letter-spacing:-0.02em;margin:10px 0 22px;max-width:800px}
+  .section .intro{font-size:17px;line-height:1.6;color:var(--ink-2);max-width:700px;margin:0 0 36px}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+
+  .card{border:1px solid var(--rule);padding:24px 26px;background:var(--paper);transition:border-color .2s}
+  .card:hover{border-color:var(--ink)}
+  .card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase}
+  .card h3{font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:-0.01em;margin:10px 0 10px}
+  .card p{font-size:14px;line-height:1.6;color:var(--ink-2);margin:0}
+
+  .callout{border:1px solid var(--accent);background:#fbf0d4;padding:24px 26px}
+  .callout .lbl{color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase}
+
+  table.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+  .tbl th,.tbl td{border-bottom:1px solid var(--rule);padding:11px 10px;text-align:left;letter-spacing:0.02em;vertical-align:top}
+  .tbl th{font-weight:500;color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:0.14em}
+  .tbl td.m{color:var(--muted)}
+  .tbl td.a{color:var(--accent)}
+
+  /* pipeline */
+  .pipeline{border:1px solid var(--ink);background:var(--paper);display:grid;grid-template-columns:1fr auto 1fr auto 1fr}
+  .pipeline .step{padding:22px 22px}
+  .pipeline .step + .step{border-left:1px solid var(--rule)}
+  .pipeline .arrow{padding:22px 16px;font-family:var(--mono);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid var(--rule);gap:2px;text-align:center}
+  .pipeline .arrow .lbl2{font-size:10px;letter-spacing:0.08em}
+  .pipeline .tag2{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+  .pipeline h4{font-family:var(--sans);font-weight:700;font-size:20px;letter-spacing:-0.01em;margin:6px 0 8px}
+  .pipeline p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.5}
+  .pipeline .final{background:#fbf0d4;border-left:1px solid var(--accent) !important}
+
+  /* rule box */
+  .rulebox{border:1px solid var(--rule);background:var(--paper)}
+  .rulerow{display:grid;grid-template-columns:52px 1fr;gap:16px;padding:16px 20px;border-bottom:1px solid var(--rule)}
+  .rulerow:last-child{border-bottom:none}
+  .rulerow .rid{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600;letter-spacing:0.02em}
+  .rulerow .rtxt{font-size:14px;line-height:1.6;color:var(--ink-2)}
+  .rulerow.cfg .rid{color:var(--muted)}
+
+  .qa{border-top:1px solid var(--rule);padding:24px 0}
+  .qa:first-child{border-top:none}
+  .qa .q{font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:-0.01em;margin:0 0 10px}
+  .qa .a{font-size:14.5px;line-height:1.65;color:var(--ink-2);margin:0;max-width:820px}
+
+  .mono{font-family:var(--mono)}
+
+  footer{padding:56px 0 40px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+  .foot-grid h5{font-family:var(--mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:500}
+  .foot-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .foot-grid a{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none}
+  .foot-grid a:hover{color:var(--accent)}
+  .foot-bottom{margin-top:40px;border-top:1px solid var(--rule);padding-top:20px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.06em}
+
+  @media (max-width:960px){
+    .hero h1{font-size:44px}
+    .section h2{font-size:30px}
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr}
+    .navlinks{display:none}
+    .section{padding:56px 0}
+    .wrap,.nav-inner{padding-left:22px;padding-right:22px}
+    .pipeline{grid-template-columns:1fr}
+    .pipeline .step + .step{border-left:0;border-top:1px solid var(--rule)}
+    .pipeline .arrow{display:none}
+    .rulerow{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand" aria-label="Memcoin"><span class="mark">𝕄</span></a>
+    <div class="navlinks">
+      <a href="#overview">overview</a>
+      <a href="#philosophy">philosophy</a>
+      <a href="#lifecycle">lifecycle</a>
+      <a href="#tx1">tx1 rules</a>
+      <a href="#tx2">tx2 rules</a>
+      <a href="#incentives">incentives</a>
+      <a href="#security">security</a>
+    </div>
+    <a href="index.html" style="font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none">← memcoin</a>
+    <a href="node.html" class="nav-cta">Run a node →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Memcoin · TX1 / TX2 · design &amp; architecture</div>
+    <h1>The payment.<br>And spending it.</h1>
+    <p class="lead">TX1 is the payment — one transaction, one step. The moment it enters the mempool, the sender's funds belong permanently to the recipient, at zero fee. TX2 is how the recipient later spends what's theirs, also at zero fee. Two transaction types, one hard boundary between them: 1 MEM.</p>
+  </div>
+</header>
+
+<!-- ============== OVERVIEW ============== -->
+<section id="overview" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Overview</span></div>
+    <h2>Two payment paths.<br>One chain.</h2>
+    <p class="intro">The standard transaction is fee-bearing, immediately spendable, general-purpose — for transfers of any size. TX1/TX2 is built for a different job: zero-fee, irrevocable payments bounded at 1 MEM. Both coexist under the same consensus.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">Standard transaction</div>
+        <h3>Immediate. Any size.</h3>
+        <p>Fee-bearing, spendable as soon as it confirms. The right tool for transfers with no cap and no lock.</p>
+      </div>
+      <div class="card" style="background:var(--accent-soft);border-color:var(--accent)">
+        <div class="lbl" style="color:var(--accent)">TX1 / TX2</div>
+        <h3>Final at mempool entry. Capped at 1 MEM.</h3>
+        <p>TX1 is the payment — final the instant it reaches the network. TX2 is the recipient spending their own unlocked balance, not a second half of the payment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== DESIGN PHILOSOPHY ============== -->
+<section id="philosophy" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Design philosophy</span></div>
+    <h2>Four commitments.</h2>
+
+    <div class="grid-4">
+      <div class="card">
+        <div class="lbl">Zero fee, both directions</div>
+        <h3 style="font-size:19px">No cost, either side.</h3>
+        <p>TX1 carries no fee. TX2 carries no fee. A recipient can consolidate many unlocked outputs into one TX2 and split the total across up to three addresses, at no cost.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Forward security</div>
+        <h3 style="font-size:19px">Certainty sent to the future.</h3>
+        <p>The 3-day lock doesn't build certainty over time — it transfers certainty forward from the moment TX1 is broadcast. The payment is already final; the lock is a property of the output, not of the payment.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Irrevocable commitment</div>
+        <h3 style="font-size:19px">No cancellation path.</h3>
+        <p>Once broadcast, the sender permanently loses control. There's no expiry on the recipient's claim — if TX2 is never broadcast, the funds stay locked to the recipient indefinitely. A refund requires the recipient to voluntarily send it back.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">A hard ceiling</div>
+        <h3 style="font-size:19px">Large amounts, elsewhere.</h3>
+        <p>TX1/TX2 is bounded at 1 MEM per payment by consensus. Anything larger uses a standard fee-bearing transaction — settled immediately, no lock period.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== LIFECYCLE ============== -->
+<section id="lifecycle" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">UTXO lifecycle</span></div>
+    <h2>One direction.<br>Never chains, never nests.</h2>
+    <p class="intro">TX1 is the only way to create a CLTV+P2PKH output. TX2 is the only way to spend one — and it always produces plain P2PKH outputs. Locked outputs can't chain or nest; the payment graph stays flat.</p>
+
+    <div class="pipeline">
+      <div class="step">
+        <div class="tag2">Sender's balance</div>
+        <h4>P2PKH</h4>
+        <p>An ordinary spendable output — the sender's funds before any payment is made.</p>
+      </div>
+      <div class="arrow"><span>→</span><span class="lbl2">TX1</span></div>
+      <div class="step">
+        <div class="tag2">~3-day lock</div>
+        <h4>CLTV+P2PKH</h4>
+        <p>Locked to the recipient. Visible and attributed to them immediately — spendable only once the lock expires.</p>
+      </div>
+      <div class="arrow"><span>→</span><span class="lbl2">TX2</span></div>
+      <div class="step final">
+        <div class="tag2">Recipient's balance</div>
+        <h4>P2PKH</h4>
+        <p>Ordinary spendable output again — no restrictions, usable like any other balance.</p>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:28px">
+      <div class="card">
+        <div class="lbl">TX1 · the payment</div>
+        <p>Spends a single P2PKH output, locks the payment amount to the recipient, with an optional change output back to the sender. Final — and the sender's control ends — the moment it enters the mempool.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">The lock period</div>
+        <p>The locked output sits on-chain for ~3 days (432 blocks), visible and already attributed to the recipient, but not yet spendable. The payment is settled; the lock is just the gap before availability.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">TX2 · spending it</div>
+        <p>Once unlocked, the recipient broadcasts TX2 — consolidating up to 1,000 unlocked outputs from any number of past TX1s, split across up to three P2PKH addresses, at zero fee.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== RULE LAYERS ============== -->
+<section class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Rule layers</span></div>
+    <h2>Consensus vs. policy.</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">Consensus rules</div>
+        <h3>Cannot be bypassed by a miner.</h3>
+        <p>Enforced by every node on every block, unconditionally. A block that violates one is rejected by the entire network regardless of who mined it — the structural shape of TX1/TX2, the lock period, the value ceiling, and the output floor all live here.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Policy rules</div>
+        <h3>Adjustable, no fork required.</h3>
+        <p>Enforced at mempool admission, defending against abuse within the bounds consensus already sets. Operators tighten or relax them as conditions change — the consensus output floor is the hard backstop beneath any policy value.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TX1 RULES ============== -->
+<section id="tx1" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">TX1 rules</span></div>
+    <h2>The payment,<br>rule by rule.</h2>
+
+    <div class="rulebox">
+      <div class="rulerow"><div class="rid">R0</div><div class="rtxt">Exactly one input, and it must be P2PKH. A sender whose balance is spread across multiple addresses must consolidate first with a standard transfer.</div></div>
+      <div class="rulerow"><div class="rid">R1</div><div class="rtxt">Total input value must equal total output value — no fee is deducted.</div></div>
+      <div class="rulerow"><div class="rid">R2</div><div class="rtxt">The CLTV output's locktime must fall within ±30 blocks of the 432-block target from the current height, accommodating propagation delay. A TX1 that lingers past its valid pack window must be rebuilt with an updated locktime.</div></div>
+      <div class="rulerow"><div class="rid">R3</div><div class="rtxt">The first output must match the CLTV+P2PKH template exactly, with a height-encoded — not time-encoded — locktime.</div></div>
+      <div class="rulerow"><div class="rid">R3b</div><div class="rtxt">At most 2 outputs. A second output, if present, must be P2PKH change back to the sender. One TX1 issues exactly one payment to exactly one recipient.</div></div>
+      <div class="rulerow cfg"><div class="rid">R4</div><div class="rtxt">A sender address may broadcast at most 6 TX1s within any rolling 6-block window, across confirmed blocks and the mempool.</div></div>
+      <div class="rulerow"><div class="rid">R5</div><div class="rtxt">The locked output value must not exceed 1 MEM — enforced at both mempool admission and block validation.</div></div>
+      <div class="rulerow cfg"><div class="rid">R5b</div><div class="rtxt"><span class="mono">mempoolminvalue</span> — the minimum a TX1 output must carry to enter the mempool. Default 100 kbit. Operators may raise it independently or through coordinated governance; it cannot go below the 10 kbit consensus floor.</div></div>
+    </div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em;margin-top:14px">R0, R1, R2, R3, R3b, R5 are consensus · R4, R5b are policy</p>
+  </div>
+</section>
+
+<!-- ============== TX2 RULES ============== -->
+<section id="tx2" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">TX2 rules</span></div>
+    <h2>Spending it,<br>rule by rule.</h2>
+    <p class="intro">TX2 spends unlocked CLTV+P2PKH outputs exclusively. It cannot spend standard P2PKH outputs, and CLTV and P2PKH inputs can never mix in one transaction.</p>
+
+    <div class="rulebox">
+      <div class="rulerow"><div class="rid">R6</div><div class="rtxt">Total input value must equal total output value — no fee is deducted.</div></div>
+      <div class="rulerow"><div class="rid">R7</div><div class="rtxt">Every input must reference a CLTV+P2PKH output.</div></div>
+      <div class="rulerow cfg"><div class="rid">R7b</div><div class="rtxt">A single TX2 may have at most 1,000 inputs.</div></div>
+      <div class="rulerow cfg"><div class="rid">R8</div><div class="rtxt">When spending multiple inputs, their locktimes must fall within a 31-block spread, and nLockTime must satisfy all of them at once. TX1 payments issued more than ~5 hours apart can't be combined and must be spent separately.</div></div>
+      <div class="rulerow cfg"><div class="rid">R9</div><div class="rtxt">A recipient address may broadcast at most 10 TX2s within any rolling 144-block window.</div></div>
+      <div class="rulerow"><div class="rid">R10</div><div class="rtxt">A TX2 must have between 1 and 3 outputs.</div></div>
+      <div class="rulerow"><div class="rid">R10b</div><div class="rtxt">Every output must be standard P2PKH. TX2 can never create a CLTV+P2PKH output.</div></div>
+    </div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em;margin-top:14px">R6, R7, R10, R10b are consensus · R7b, R8, R9 are policy</p>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="lbl">Minimum output value</div>
+      <p style="font-size:14.5px;line-height:1.65;color:var(--ink-2);margin:10px 0 0"><span class="mono">MIN_OUTPUT_VALUE</span> (consensus) — every output of every transaction must carry at least 10 kbit, without exception, checked before TX1/TX2 classification even occurs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MINER INCENTIVES ============== -->
+<section id="incentives" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Miner incentives</span></div>
+    <h2>Paid by the block.<br>Not the transaction.</h2>
+    <p class="intro">TX1 and TX2 carry no fee — miner income from these transactions comes entirely from the block reward, permanently fixed at 7 MEM after block 472,500.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">Same population</div>
+        <h3 style="font-size:20px">Miners are the payers.</h3>
+        <p>Yesmem runs without displacing normal computer use. Miners are ordinary users — the same people making and receiving these payments — so they include zero-fee transactions because the transactions are their own.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">No gatekeeper</div>
+        <h3 style="font-size:20px">No one controls the next block.</h3>
+        <p>Each mining thread needs a dedicated, non-shareable 8 GiB — large pools are structurally unviable. Miners are distributed individuals, not a coordinated few who could choose to exclude zero-fee transactions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SECURITY & FINALITY ============== -->
+<section id="security" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Security &amp; finality</span></div>
+    <h2>Point of no return:<br>mempool entry.</h2>
+
+    <div class="qa">
+      <div class="q">What happens the instant TX1 enters the mempool?</div>
+      <p class="a">The payment is final. The sender's funds are locked into a CLTV output only the recipient can spend once the lock expires. Any block that tries to spend it early violates OP_CLTV and is rejected by the entire network. The payment timeline moves only forward — a reorg deep enough to displace a confirmed TX1 is highly unlikely, and even then TX1 simply re-enters the mempool and reconfirms, since the P2PKH output it spent remains unspent on the new chain.</p>
+    </div>
+    <div class="qa">
+      <div class="q">What's enforced at consensus, and what isn't?</div>
+      <p class="a">The lock period (R2) and the value ceiling (R5) are checked by every node on every block — a TX1 with an invalid locktime or an out-of-range value is rejected outright, and no miner can bypass that.</p>
+    </div>
+    <div class="qa">
+      <div class="q">How is the lifecycle kept structurally sound?</div>
+      <p class="a">R3, R7, and R10b together guarantee CLTV+P2PKH outputs are created only by TX1 and spent only by TX2, and that TX2 outputs are always plain P2PKH. Locked outputs never chain or nest — the payment graph stays flat, entirely by consensus.</p>
+    </div>
+    <div class="qa">
+      <div class="q">Can the two payment paths be mixed?</div>
+      <p class="a">No. Setting <span class="mono">nLockTime &gt; 0</span> on an ordinary P2PKH transaction isn't permitted — it gets classified as TX2 and rejected at mempool entry by R7. Standard transactions and TX1/TX2 are structurally separate paths that never combine.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="mark">𝕄</span></a>
+        <p class="mono" style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6;letter-spacing:0.03em">
+          A peer-to-peer currency.
+        </p>
+      </div>
+      <div><h5>Protocol</h5><ul><li><a href="https://raw.githubusercontent.com/RouteToCoast/memcoin-whitepaper/refs/heads/main/whitepaper.txt" target="_blank" rel="noopener">Whitepaper (.txt)</a></li><li><a href="Memcoin Memory.html">Memory</a></li><li><a href="Memcoin UTXO Temperature.html">UTXO Temperature (design doc)</a></li><li><a href="Memcoin TX1 TX2.html">TX1 / TX2 (design doc)</a></li></ul></div>
+      <div><h5>Participate</h5><ul><li><a href="node.html">Run a node</a></li><li><a href="https://github.com/RouteToCoast/memcoin-wallet" target="_blank" rel="noopener">Wallets</a></li><li><a href="https://github.com/RouteToCoast/memcoin" target="_blank" rel="noopener">Source</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>MEMCOIN · 2026</span>
+      <span>No trusted third party.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

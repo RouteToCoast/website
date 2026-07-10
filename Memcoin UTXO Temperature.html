@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UTXO Temperature — Memcoin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141311; --ink-2:#3a3732;
+    --paper:#f6f3ec; --paper-2:#efebe2;
+    --muted:#8a867c; --rule:#d9d4c7;
+    --accent:#a66a12; --accent-2:#cf8a25; --accent-soft:#ecd9ad;
+    --sans:"Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);margin:0;font-family:var(--sans)}
+  a{color:var(--accent)}
+  a:hover{color:var(--ink)}
+
+  .nav{position:sticky;top:0;z-index:20;background:rgba(246,243,236,0.92);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--rule)}
+  .nav-inner{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:28px}
+  .brand{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:0.06em;display:flex;align-items:center;text-decoration:none;color:var(--ink)}
+  .brand .mark{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);font-family:var(--mono);font-weight:500;font-size:26px;line-height:1;margin-top:-2px}
+  .navlinks{display:flex;gap:22px;flex:1}
+  .navlinks a{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none;text-transform:lowercase}
+  .navlinks a:hover{color:var(--ink)}
+  .nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;padding:9px 16px;background:var(--ink);color:var(--paper);text-decoration:none}
+  .nav-cta:hover{background:var(--accent)}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent)}
+
+  .hero{padding:80px 0 60px;border-bottom:1px solid var(--rule)}
+  .hero h1{font-family:var(--sans);font-weight:700;font-size:76px;line-height:0.98;letter-spacing:-0.03em;margin:16px 0 22px;max-width:1000px}
+  .hero .lead{font-size:19px;line-height:1.6;color:var(--ink-2);max-width:700px;margin:0}
+
+  .section{padding:76px 0;border-bottom:1px solid var(--rule)}
+  .section-head{display:flex;align-items:baseline;gap:18px;margin-bottom:8px}
+  .section-head .tag{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:0.18em;text-transform:uppercase}
+  .section h2{font-family:var(--sans);font-weight:700;font-size:44px;line-height:1.08;letter-spacing:-0.02em;margin:10px 0 22px;max-width:800px}
+  .section .intro{font-size:17px;line-height:1.6;color:var(--ink-2);max-width:700px;margin:0 0 36px}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+  .card{border:1px solid var(--rule);padding:24px 26px;background:var(--paper);transition:border-color .2s}
+  .card:hover{border-color:var(--ink)}
+  .card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase}
+  .card h3{font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:-0.01em;margin:10px 0 10px}
+  .card p{font-size:14px;line-height:1.6;color:var(--ink-2);margin:0}
+  .card .rule-id{font-family:var(--mono);font-size:10.5px;color:var(--accent);letter-spacing:0.08em;margin-top:10px;display:block}
+
+  .callout{border:1px solid var(--accent);background:#fbf0d4;padding:24px 26px}
+  .callout .lbl{color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase}
+
+  table.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+  .tbl th,.tbl td{border-bottom:1px solid var(--rule);padding:11px 10px;text-align:left;letter-spacing:0.02em;vertical-align:top}
+  .tbl th{font-weight:500;color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:0.14em}
+  .tbl td.m{color:var(--muted)}
+  .tbl td.a{color:var(--accent)}
+
+  /* pipeline */
+  .pipeline{border:1px solid var(--ink);background:var(--paper);display:grid;grid-template-columns:1fr auto 1fr auto 1fr}
+  .pipeline .step{padding:22px 22px}
+  .pipeline .step + .step{border-left:1px solid var(--rule)}
+  .pipeline .arrow{padding:22px 16px;font-family:var(--mono);color:var(--muted);display:flex;align-items:center;border-left:1px solid var(--rule)}
+  .pipeline .tag2{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+  .pipeline h4{font-family:var(--sans);font-weight:700;font-size:20px;letter-spacing:-0.01em;margin:6px 0 8px}
+  .pipeline p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.5}
+  .pipeline .final{background:#fbf0d4;border-left:1px solid var(--accent) !important}
+
+  /* rule box */
+  .rulebox{border:1px solid var(--rule);background:var(--paper)}
+  .rulerow{display:grid;grid-template-columns:52px 1fr;gap:16px;padding:16px 20px;border-bottom:1px solid var(--rule)}
+  .rulerow:last-child{border-bottom:none}
+  .rulerow .rid{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600;letter-spacing:0.02em}
+  .rulerow .rtxt{font-size:14px;line-height:1.6;color:var(--ink-2)}
+  .rulerow .rtxt .mono{color:var(--ink)}
+  .rulerow.cfg .rid{color:var(--muted)}
+
+  .term{background:#191713;color:#e9e6df;font-family:var(--mono);font-size:12.5px;line-height:1.85;padding:20px 22px;letter-spacing:0.02em;border:1px solid var(--ink)}
+  .term .tlbl{color:#7c7567;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:10px}
+  .term .k{color:#7c7567}
+  .term .v{color:#e9e6df}
+  .term .hl{color:#d4933a;font-weight:600}
+
+  .qa{border-top:1px solid var(--rule);padding:24px 0}
+  .qa:first-child{border-top:none}
+  .qa .q{font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:-0.01em;margin:0 0 10px}
+  .qa .a{font-size:14.5px;line-height:1.65;color:var(--ink-2);margin:0;max-width:820px}
+
+  .mono{font-family:var(--mono)}
+
+  footer{padding:56px 0 40px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+  .foot-grid h5{font-family:var(--mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:500}
+  .foot-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .foot-grid a{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none}
+  .foot-grid a:hover{color:var(--accent)}
+  .foot-bottom{margin-top:40px;border-top:1px solid var(--rule);padding-top:20px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.06em}
+
+  @media (max-width:960px){
+    .hero h1{font-size:44px}
+    .section h2{font-size:30px}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr}
+    .navlinks{display:none}
+    .section{padding:56px 0}
+    .wrap,.nav-inner{padding-left:22px;padding-right:22px}
+    .pipeline{grid-template-columns:1fr}
+    .pipeline .step + .step{border-left:0;border-top:1px solid var(--rule)}
+    .pipeline .arrow{display:none}
+    .rulerow{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand" aria-label="Memcoin"><span class="mark">𝕄</span></a>
+    <div class="navlinks">
+      <a href="#overview">overview</a>
+      <a href="#types">tx types</a>
+      <a href="#lifecycle">lifecycle</a>
+      <a href="#temperature">temperature</a>
+      <a href="#tiers">tiers</a>
+      <a href="#utxofall">utxofall</a>
+      <a href="#reorg">reorg</a>
+      <a href="#rationale">rationale</a>
+    </div>
+    <a href="index.html" style="font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none">← memcoin</a>
+    <a href="node.html" class="nav-cta">Run a node →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Memcoin · UTXO Temperature · design &amp; architecture</div>
+    <h1>Storage cools.<br>Spendability never does.</h1>
+    <p class="lead">Without intervention, the UTXO set grows without bound — every output, once created, occupies node storage indefinitely regardless of value or age. The temperature system migrates unspent outputs through progressively compressed storage tiers as they age, without ever affecting whether they can be spent.</p>
+  </div>
+</header>
+
+<!-- ============== OVERVIEW ============== -->
+<section id="overview" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Overview</span></div>
+    <h2>Internal to the node.<br>Invisible to the network.</h2>
+    <p class="intro">The temperature system does not modify the block format, transaction format, or network protocol. All nodes remain equal peers. The lifecycle is governed by two layers of rules: consensus rules, which every node enforces unconditionally when validating a block, and node configuration parameters, which govern local storage behavior and can be adjusted by operators without a protocol fork.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">Consensus rules</div>
+        <h3>Enforced by every node.</h3>
+        <p>The demotion schedule and Normal-tier migration logic are consensus — a block that omits a required demotion, or processes one incorrectly, is invalid.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Node configuration</div>
+        <h3>Adjustable, no fork required.</h3>
+        <p>Protection period, ice index depth, and pruning behavior are local storage decisions. Operators tune them freely; the network never sees the difference.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TRANSACTION TYPES ============== -->
+<section id="types" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Transaction types</span></div>
+    <h2>Two output types.<br>One temperature system.</h2>
+    <p class="intro">Memcoin has two output types relevant to temperature. They're treated identically in every storage tier, with one deliberate exception.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">P2PKH</div>
+        <h3>Standard outputs.</h3>
+        <p>Spendable by the holder of a matching private key. Created by standard transactions and by TX2. The temperature clock starts at the block where the output confirmed.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">CLTV+P2PKH</div>
+        <h3>Time-locked outputs.</h3>
+        <p>Created exclusively by TX1, encoding an <span class="mono">unlockHeight</span> enforced by <span class="mono">OP_CHECKLOCKTIMEVERIFY</span>. TX1 requires exactly one P2PKH input (R0), a locked value capped at 1 MEM (R5), and a locktime within ±30 blocks of a 432-block lock period (R2). Spent exclusively by TX2, which accepts only CLTV+P2PKH inputs (R7) and produces only P2PKH outputs (R10b) — locked outputs never chain or nest; the payment graph stays flat.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="lbl">The one exception</div>
+      <p style="font-size:14.5px;line-height:1.65;color:var(--ink-2);margin:10px 0 0">For CLTV+P2PKH outputs, the temperature clock starts at <span class="mono">unlockHeight</span>, not confirmation height. A locked payment doesn't get penalized for time it was never allowed to spend in the first place.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== LIFECYCLE ============== -->
+<section id="lifecycle" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">The lifecycle</span></div>
+    <h2>Forward-only.<br>No promotion back.</h2>
+    <p class="intro">A UTXO moves through three storage tiers as it ages. The path runs one direction only.</p>
+
+    <div class="pipeline">
+      <div class="step">
+        <div class="tag2">In-memory · instant</div>
+        <h4>Normal</h4>
+        <p>Standard chainstate database lookup. Every newly confirmed output enters here and stays until its temperature reaches zero.</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="tag2">Compressed disk index</div>
+        <h4>Cold</h4>
+        <p>A single record per address, shared across every output at that address. Spendable without reading any historical block.</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step final">
+        <div class="tag2">Per-address height list</div>
+        <h4>Ice</h4>
+        <p>Only block heights remain on file. Spending reads those blocks and reconstructs the output's data on demand.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TEMPERATURE & DEMOTION ============== -->
+<section id="temperature" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Temperature &amp; demotion</span></div>
+    <h2>A linear function<br>of value and age.</h2>
+    <p class="intro">Temperature determines when a UTXO moves between tiers — it decays every block, at a rate fixed by consensus.</p>
+
+    <div class="rulebox">
+      <div class="rulerow">
+        <div class="rid">T1</div>
+        <div class="rtxt"><span class="mono">COOLING_RATE = 2000 ʙ / block</span> — combined with the 10 kbit output floor, this guarantees every non-coinbase output spends at least 5 blocks in Normal before any demotion is possible.</div>
+      </div>
+      <div class="rulerow">
+        <div class="rid">T2</div>
+        <div class="rtxt"><span class="mono">temperature(h) = value − COOLING_RATE × (h − heightAnchor)</span> — heightAnchor is confirmation height for P2PKH, unlock height for CLTV+P2PKH.</div>
+      </div>
+      <div class="rulerow">
+        <div class="rid">T3</div>
+        <div class="rtxt"><span class="mono">demotionBlock = heightAnchor + floor(value / COOLING_RATE) + 1</span> — the block at which a Normal-tier UTXO demotes to Cold.</div>
+      </div>
+      <div class="rulerow cfg">
+        <div class="rid">T4</div>
+        <div class="rtxt"><span class="mono">iceDemotionBlock = coldBlock + protectionPeriod + floor(value / COOLING_RATE) + 1</span> — Cold→Ice cooling is symmetric with the Normal lifetime; protection period sits between them.</div>
+      </div>
+      <div class="rulerow cfg">
+        <div class="rid">T5</div>
+        <div class="rtxt"><span class="mono">protectionPeriod</span> — node configuration, default 12,960 blocks (~90 days). Operators may reduce it under storage pressure. Does not affect consensus.</div>
+      </div>
+    </div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em;margin-top:14px">T1–T3 are consensus rules · T4–T5 are node configuration</p>
+  </div>
+</section>
+
+<!-- ============== TIER DETAILS ============== -->
+<section id="tiers" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Tier by tier</span></div>
+    <h2>What each tier<br>actually stores.</h2>
+
+    <div class="grid-3" style="align-items:start">
+      <div>
+        <div class="lbl mono" style="color:var(--accent);margin-bottom:10px">NORMAL</div>
+        <div class="rulebox">
+          <div class="rulerow"><div class="rid">N1</div><div class="rtxt">Every confirmed output enters Normal at confirmation; a demotion schedule entry is written, indexed by <span class="mono">demotionBlock</span>.</div></div>
+          <div class="rulerow"><div class="rid">N2</div><div class="rtxt">At the start of each block, the node migrates all UTXOs scheduled for demotion before processing any transactions in that block.</div></div>
+          <div class="rulerow"><div class="rid">N3</div><div class="rtxt">Spending a Normal UTXO follows the standard validation path — no temperature logic intervenes.</div></div>
+          <div class="rulerow"><div class="rid">N4</div><div class="rtxt">Coinbase outputs use <span class="mono">heightAnchor = confirmHeight</span>. The 7 MEM reward floor guarantees maturity (100 blocks) before demotion. CLTV+P2PKH can never appear in coinbase — TX1 requires a P2PKH input.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl mono" style="color:var(--accent);margin-bottom:10px">COLD</div>
+        <div class="rulebox">
+          <div class="rulerow"><div class="rid">C1</div><div class="rtxt">On demotion, all fields needed for validation are copied directly from the existing coin record — no historical block read required.</div></div>
+          <div class="rulerow"><div class="rid">C2</div><div class="rtxt">Outputs at the same address share one record. P2PKH keys on the full scriptPubKey; CLTV+P2PKH keys on the pubkey hash, since TX2's scriptSig alone can't reconstruct the full locking script.</div></div>
+          <div class="rulerow"><div class="rid">C3</div><div class="rtxt">Spending a Cold UTXO reads the cold index directly — still no historical block access.</div></div>
+          <div class="rulerow"><div class="rid">C4</div><div class="rtxt">Demoted to Ice at <span class="mono">iceDemotionBlock</span>; the cold record is removed and a minimal height entry written to the ice index.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl mono" style="color:var(--accent);margin-bottom:10px">ICE</div>
+        <div class="rulebox">
+          <div class="rulerow"><div class="rid">I1</div><div class="rtxt">One record per public key hash: a <span class="mono">minHeight</span> fallback anchor plus a delta-encoded list of block heights holding unspent outputs.</div></div>
+          <div class="rulerow"><div class="rid">I2</div><div class="rtxt">Spending triggers an Ice Rebuild — the node reads the listed blocks, locates the output, and reconstructs it in memory. Stale height entries are pruned during rebuild.</div></div>
+          <div class="rulerow cfg"><div class="rid">I3</div><div class="rtxt"><span class="mono">ice_height_list_max</span> — default 36 entries per address; oldest evicted beyond that, with <span class="mono">minHeight</span> as fallback. Not a consensus rule.</div></div>
+          <div class="rulerow cfg"><div class="rid">I4</div><div class="rtxt">Nodes lacking the data request it via utxofall. Pruned nodes may disable the ice index entirely with <span class="mono">pruned_no_ice=1</span> and still handle Ice spends correctly.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:28px">
+      <div style="border:1px solid var(--rule);background:var(--paper);padding:24px 26px">
+        <div class="lbl" style="margin-bottom:14px">Normal-tier lifetime (2,000 ʙ/block)</div>
+        <table class="tbl">
+          <thead><tr><th>Value</th><th>Blocks</th><th>≈ time</th></tr></thead>
+          <tbody>
+            <tr><td>10 kbit (min)</td><td class="m">5</td><td class="m">~50 min</td></tr>
+            <tr><td>100 kbit</td><td class="m">50</td><td class="m">~8 hours</td></tr>
+            <tr><td>1 mbit</td><td class="m">500</td><td class="m">~3.5 days</td></tr>
+            <tr><td class="a">1 MEM</td><td class="a">50,000</td><td class="a">~347 days</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="border:1px solid var(--rule);background:var(--paper);padding:24px 26px">
+        <div class="lbl" style="margin-bottom:14px">1 MEM output · total time to Ice</div>
+        <table class="tbl">
+          <thead><tr><th>Phase</th><th>Blocks</th><th>≈ time</th></tr></thead>
+          <tbody>
+            <tr><td>Normal cooling</td><td class="m">50,000</td><td class="m">~347 days</td></tr>
+            <tr><td>Cold protection</td><td class="m">12,960</td><td class="m">~90 days</td></tr>
+            <tr><td>Cold cooling</td><td class="m">50,000</td><td class="m">~347 days</td></tr>
+            <tr><td class="a">Total to Ice</td><td class="a">112,960</td><td class="a">~784 days</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="lbl">Storage per UTXO</div>
+      <table class="tbl" style="margin-top:12px;background:transparent">
+        <thead><tr><th>Tier</th><th>Storage</th><th>Lookup</th></tr></thead>
+        <tbody>
+          <tr><td>Normal</td><td class="a">~115 ʙ</td><td class="m">in-memory, O(1)</td></tr>
+          <tr><td>Cold</td><td class="a">~75 ʙ</td><td class="m">disk key read, no block access</td></tr>
+          <tr><td>Ice</td><td class="a">~4 ʙ</td><td class="m">block read and rebuild</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============== UTXOFALL ============== -->
+<section id="utxofall" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">utxofall protocol</span></div>
+    <h2>Point-to-point.<br>Never broadcast.</h2>
+    <p class="intro">Whether a node retains full block history, has pruned, or has disabled the ice index is an internal detail — invisible to the network. Every node can send and answer utxofall messages.</p>
+
+    <div class="rulebox">
+      <div class="rulerow"><div class="rid">U1</div><div class="rtxt">All nodes are equal peers at the network layer. Internal storage choices don't change how a node behaves externally.</div></div>
+      <div class="rulerow"><div class="rid">U2</div><div class="rtxt">A node needing UTXO data it can't resolve locally sends <span class="mono">UTXO_REQUEST</span> to the node that propagated the spending transaction or block — that node already validated it, so it's guaranteed to have the data.</div></div>
+      <div class="rulerow"><div class="rid">U3</div><div class="rtxt">The request is point-to-point. It is not broadcast to the network.</div></div>
+      <div class="rulerow"><div class="rid">U4</div><div class="rtxt"><span class="mono">UTXO_REQUEST</span> carries the outpoint (txid + vout). <span class="mono">UTXO_RESPONSE</span> carries the outpoint plus value and scriptPubKey. No other data is exchanged.</div></div>
+    </div>
+
+    <div class="term" style="margin-top:20px">
+      <div class="tlbl">Exchange</div>
+      <div><span class="k">→ UTXO_REQUEST</span> <span class="v">txid, vout</span></div>
+      <div style="margin-top:6px"><span class="k">← UTXO_RESPONSE</span> <span class="v">txid, vout, <span class="hl">value</span>, <span class="hl">scriptPubKey</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== REORG ============== -->
+<section id="reorg" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Reorg handling</span></div>
+    <h2>Two indexes.<br>No dedicated undo log.</h2>
+
+    <div class="rulebox">
+      <div class="rulerow"><div class="rid">G1</div><div class="rtxt">The cold index maintains two reorg indexes — <span class="mono">H</span> records which UTXOs entered Cold at each height; <span class="mono">X</span> records which moved Cold→Ice at each height, with their complete data.</div></div>
+      <div class="rulerow"><div class="rid">G2</div><div class="rtxt">Both indexes are retained for <span class="mono">REORG_BUFFER</span> blocks, then pruned — enough to reverse any reorganisation the network will accept in practice.</div></div>
+      <div class="rulerow"><div class="rid">G3</div><div class="rtxt"><span class="mono">REORG_BUFFER = 432 blocks</span> (~3 days) — hardcoded, not operator-configurable.</div></div>
+      <div class="rulerow"><div class="rid">G4</div><div class="rtxt">The ice index keeps no reorg index of its own. Reorg operations on Ice-tier UTXOs run entirely through the cold index's <span class="mono">X</span> entries.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== RATIONALE + GUARANTEE ============== -->
+<section id="rationale" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Design rationale</span></div>
+    <h2>Why it's built<br>this way.</h2>
+
+    <div class="qa">
+      <div class="q">Why does CLTV use unlockHeight as the temperature anchor?</div>
+      <p class="a">A CLTV+P2PKH output can't be spent before its locktime expires — enforced at consensus. Anchoring on confirmation height would penalize the holder for time the output was legally unspendable. Anchoring on unlock height means the clock starts only once the output becomes accessible, and a TX1 output and a standard output of equal value created at the same effective moment cool at the same rate.</p>
+    </div>
+    <div class="qa">
+      <div class="q">Why per-address storage in Cold, not per-UTXO?</div>
+      <p class="a">The scriptPubKey — the dominant fixed cost — is stored once per address rather than once per UTXO. Addresses with many outputs compress significantly; addresses with a single output cost the same as per-UTXO storage would, so there's no downside in the common case.</p>
+    </div>
+    <div class="qa">
+      <div class="q">Why does Cold avoid block reads entirely?</div>
+      <p class="a">Everything needed for future validation — value, scriptPubKey, coinbase flag, block height — is copied from the chainstate record at the moment of demotion. Block reads are deferred entirely to Ice, where storage is already minimal and a rebuild is expected to be rare.</p>
+    </div>
+    <div class="qa">
+      <div class="q">Why is utxofall point-to-point rather than broadcast?</div>
+      <p class="a">Any node that propagated a transaction or block already validated it — which means it already resolved every input, including Ice UTXOs. It's guaranteed to hold the data. Broadcasting would reach nodes that may not, wasting bandwidth for no benefit.</p>
+    </div>
+    <div class="qa">
+      <div class="q">Why no dedicated undo system for reorgs?</div>
+      <p class="a">The H and X indexes already record exactly which UTXOs changed tier and what their data was, for the most recent REORG_BUFFER blocks. Reversing a tier transition is a direct lookup — no separate undo file or log needed, since the network won't accept a deeper reorg in practice.</p>
+    </div>
+
+    <div class="callout" style="margin-top:28px">
+      <div class="lbl">The guarantee</div>
+      <p style="font-size:15px;line-height:1.7;color:var(--ink-2);margin:10px 0 0">Every UTXO remains spendable at all times. The temperature system never deletes an output — migration between tiers is a storage optimisation, not a hold on funds. Cold and Ice differ only in how quickly a node reconstructs the data; with 10-minute blocks, that reconstruction never affects confirmation in practice. Consensus enforces only the demotion schedule and Normal-tier migration — Cold and Ice are internal to each node. Nothing about the block format, transaction format, or peer-to-peer protocol changes, apart from the two new point-to-point utxofall messages.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="mark">𝕄</span></a>
+        <p class="mono" style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6;letter-spacing:0.03em">
+          A peer-to-peer currency.
+        </p>
+      </div>
+      <div><h5>Protocol</h5><ul><li><a href="https://raw.githubusercontent.com/RouteToCoast/memcoin-whitepaper/refs/heads/main/whitepaper.txt" target="_blank" rel="noopener">Whitepaper (.txt)</a></li><li><a href="Memcoin Memory.html">Memory</a></li><li><a href="Memcoin UTXO Temperature.html">UTXO Temperature (design doc)</a></li><li><a href="Memcoin TX1 TX2.html">TX1 / TX2 (design doc)</a></li></ul></div>
+      <div><h5>Participate</h5><ul><li><a href="node.html">Run a node</a></li><li><a href="https://github.com/RouteToCoast/memcoin-wallet" target="_blank" rel="noopener">Wallets</a></li><li><a href="https://github.com/RouteToCoast/memcoin" target="_blank" rel="noopener">Source</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>MEMCOIN · 2026</span>
+      <span>No trusted third party.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

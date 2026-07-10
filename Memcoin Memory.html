@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Memory — Memcoin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141311; --ink-2:#3a3732;
+    --paper:#f6f3ec; --paper-2:#efebe2;
+    --muted:#8a867c; --rule:#d9d4c7;
+    --accent:#a66a12; --accent-2:#cf8a25; --accent-soft:#ecd9ad;
+    --sans:"Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);margin:0;font-family:var(--sans)}
+  a{color:inherit}
+  a{color:var(--accent)}
+  a:hover{color:var(--ink)}
+
+  .nav{position:sticky;top:0;z-index:20;background:rgba(246,243,236,0.92);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--rule)}
+  .nav-inner{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:28px}
+  .brand{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:0.06em;display:flex;align-items:center;text-decoration:none;color:var(--ink)}
+  .brand .mark{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);font-family:var(--mono);font-weight:500;font-size:26px;line-height:1;margin-top:-2px}
+  .navlinks{display:flex;gap:26px;flex:1}
+  .navlinks a{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none;text-transform:lowercase}
+  .navlinks a:hover{color:var(--ink)}
+  .nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;padding:9px 16px;background:var(--ink);color:var(--paper);text-decoration:none}
+  .nav-cta:hover{background:var(--accent)}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent)}
+
+  .hero{padding:80px 0 60px;border-bottom:1px solid var(--rule)}
+  .hero h1{font-family:var(--sans);font-weight:700;font-size:80px;line-height:0.98;letter-spacing:-0.03em;margin:16px 0 22px;max-width:1000px}
+  .hero .lead{font-size:19px;line-height:1.6;color:var(--ink-2);max-width:660px;margin:0}
+
+  .section{padding:80px 0;border-bottom:1px solid var(--rule)}
+  .section-head{display:flex;align-items:baseline;gap:18px;margin-bottom:8px}
+  .section-head .tag{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:0.18em;text-transform:uppercase}
+  .section h2{font-family:var(--sans);font-weight:700;font-size:48px;line-height:1.05;letter-spacing:-0.02em;margin:10px 0 22px;max-width:800px}
+  .section .intro{font-size:17px;line-height:1.6;color:var(--ink-2);max-width:680px;margin:0 0 36px}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+  .card{border:1px solid var(--rule);padding:24px 26px;background:var(--paper);transition:border-color .2s}
+  .card:hover{border-color:var(--ink)}
+  .card .lbl{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase}
+  .card h3{font-family:var(--sans);font-weight:700;font-size:22px;letter-spacing:-0.01em;margin:10px 0 10px}
+  .card p{font-size:14.5px;line-height:1.55;color:var(--ink-2);margin:0}
+
+  .callout{border:1px solid var(--accent);background:#fbf0d4;padding:24px 26px}
+  .callout .lbl{color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase}
+
+  table.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+  .tbl th,.tbl td{border-bottom:1px solid var(--rule);padding:11px 10px;text-align:left;letter-spacing:0.02em;vertical-align:top}
+  .tbl th{font-weight:500;color:var(--muted);text-transform:uppercase;font-size:10.5px;letter-spacing:0.14em}
+  .tbl td.m{color:var(--muted)}
+  .tbl td.a{color:var(--accent)}
+
+  /* nonce strip diagram */
+  .nonce-wrap{border:1px solid var(--rule);background:var(--paper);padding:26px 26px 22px}
+  .nonce-strip{display:flex;gap:2px;margin:10px 0 12px;flex-wrap:nowrap;overflow:hidden}
+  .nonce-cell{flex:1;height:34px;background:var(--paper-2);border:1px solid var(--rule)}
+  .nonce-cell.drift{background:var(--accent);border-color:var(--accent)}
+  .nonce-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.04em;margin-top:4px}
+  .nonce-labels .end{color:var(--accent);text-align:right}
+  .nonce-legend{display:flex;gap:22px;margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+  .nonce-legend .sw{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px;border:1px solid var(--rule)}
+
+  /* code / terminal blocks */
+  .term{background:#191713;color:#e9e6df;font-family:var(--mono);font-size:12.5px;line-height:1.85;padding:20px 22px;letter-spacing:0.02em;word-break:break-all;border:1px solid var(--ink)}
+  .term .tlbl{color:#7c7567;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:10px;word-break:normal}
+  .term .k{color:#7c7567}
+  .term .v{color:#e9e6df}
+  .term .hl{color:#d4933a;font-weight:600}
+
+  /* mode cards */
+  .mode-card{border:1px solid var(--rule);padding:26px;background:var(--paper)}
+  .mode-card .num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.14em;text-transform:uppercase}
+  .mode-card h3{font-family:var(--sans);font-weight:700;font-size:24px;margin:10px 0 10px;letter-spacing:-0.01em}
+  .mode-card p{font-size:14.5px;line-height:1.6;color:var(--ink-2);margin:0}
+  .mode-card.active{background:var(--accent-soft);border-color:var(--accent)}
+  .mode-card.active .num{color:var(--accent)}
+
+  footer{padding:56px 0 40px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+  .foot-grid h5{font-family:var(--mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:500}
+  .foot-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .foot-grid a{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none}
+  .foot-grid a:hover{color:var(--accent)}
+  .foot-bottom{margin-top:40px;border-top:1px solid var(--rule);padding-top:20px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.06em}
+
+  @media (max-width:960px){
+    .hero h1{font-size:48px}
+    .section h2{font-size:32px}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr}
+    .navlinks{display:none}
+    .section{padding:56px 0}
+    .wrap,.nav-inner{padding-left:22px;padding-right:22px}
+    .nonce-cell{height:22px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand" aria-label="Memcoin"><span class="mark">𝕄</span></a>
+    <div class="navlinks">
+      <a href="#field">the field</a>
+      <a href="#readings">readings</a>
+      <a href="#base">base mode</a>
+      <a href="#first">first inscription</a>
+      <a href="#music">music mode</a>
+      <a href="#free">free space</a>
+    </div>
+    <a href="index.html" style="font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none">← memcoin</a>
+    <a href="node.html" class="nav-cta">Run a node →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Memcoin · Memory</div>
+    <h1>What lives inside<br>the nonce.</h1>
+    <p class="lead">Before mining begins, a miner chooses what to write into the block header's 64-byte nNonce field — a sentence, a melody, a record of something that happened. The choice happens first. Mining searches afterward, starting from it.</p>
+  </div>
+</header>
+
+<!-- ============== THE FIELD ============== -->
+<section id="field" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">The field</span></div>
+    <h2>64 bytes, free to fill.</h2>
+    <p class="intro">A block header carries several fixed pieces of information: a hash of the previous block (32 bytes), a hash summarizing the current block's transactions (32 bytes), a timestamp (4 bytes). Of all of it, <span class="mono">nNonce</span> — 64 bytes, indexed <span class="mono">nonce[0]</span> through <span class="mono">nonce[63]</span> — is the one part a miner is free to fill with chosen content. The rest is determined by the chain itself.</p>
+
+    <div class="nonce-wrap">
+      <div class="nonce-labels">
+        <span><span class="mono">nonce[63]</span> — content begins here, essentially never touched by mining</span>
+        <span class="end"><span class="mono">nonce[0]</span> — mining counts upward from here</span>
+      </div>
+      <div class="nonce-strip" id="nonceStrip"></div>
+      <div class="nonce-legend">
+        <span><span class="sw" style="background:var(--paper-2)"></span>written content · fixed</span>
+        <span><span class="sw" style="background:var(--accent);border-color:var(--accent)"></span>drift zone · what mining changes</span>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:28px">
+      <div class="card">
+        <div class="lbl">2⁵¹²</div>
+        <h3>Larger than atoms, many universes over.</h3>
+        <p>Each of the 64 bytes holds a value 0–255. Taken together they give 2⁵¹² possible values — finite, but for any practical purpose, inexhaustible.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Drift</div>
+        <h3>Mining only ever moves the last byte or two.</h3>
+        <p>Mining starts at <span class="mono">nonce[0]</span> and counts upward — when a byte passes 255 it resets to 0 and the next byte up increases. By the time a valid hash is found, usually no more than the last 1–2 bytes have changed. Content is written in the opposite direction: its end sits near <span class="mono">nonce[0]</span>, where drift happens; its beginning sits near <span class="mono">nonce[63]</span>, which mining essentially never reaches.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== READINGS ============== -->
+<section id="readings" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Three readings</span></div>
+    <h2>One byte decides how<br>the rest are read.</h2>
+    <p class="intro">The value held in <span class="mono">nonce[63]</span> selects how the field is interpreted. A miner chooses this before the search begins — and it's the only choice that shapes how every other byte is read.</p>
+
+    <div class="grid-3">
+      <div class="mode-card active">
+        <div class="num">0 – 127 · default</div>
+        <h3>Base mode</h3>
+        <p>The whole field, including <span class="mono">nonce[63]</span> itself, is read directly — text, music, or both, byte by byte.</p>
+      </div>
+      <div class="mode-card">
+        <div class="num">128</div>
+        <h3>UTF-8 mode</h3>
+        <p>The remaining 63 bytes are read as UTF-8 text — any human script, not only Latin. <span class="mono">nonce[63]</span> itself holds no content.</p>
+      </div>
+      <div class="mode-card">
+        <div class="num">129</div>
+        <h3>Packed music mode</h3>
+        <p>The remaining 63 bytes are read as 126 four-bit nibbles — twice the notes of base mode, nothing but music.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== BASE MODE ============== -->
+<section id="base" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Base mode</span></div>
+    <h2>Text and music,<br>the same 64 bytes.</h2>
+    <p class="intro">Reading this field is direct correspondence, not computation — each byte maps to exactly one meaning, nothing derived or transformed along the way.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Byte</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="a">0</td><td>Rest (in music) / terminator (at the end)</td></tr>
+        <tr><td class="a">1 – 7</td><td>Notes: C · D · E · F · G · A · B</td></tr>
+        <tr><td class="a">8 – 12</td><td>Octave: low · mid-low · middle · mid-high · high</td></tr>
+        <tr><td class="a">13 – 17</td><td>Duration: whole · half · quarter · eighth · sixteenth</td></tr>
+        <tr><td class="a">18 – 22</td><td>Dynamics: pp · p · mf · f · ff</td></tr>
+        <tr><td class="a">23</td><td>Sharp (♯) — applies to the next note</td></tr>
+        <tr><td class="a">24</td><td>Flat (♭) — applies to the next note</td></tr>
+        <tr><td class="a">25 – 29</td><td>Tempo: Largo · Andante · Moderato · Allegro · Presto</td></tr>
+        <tr><td class="a">30</td><td>Dot — multiplies the current duration by 1.5</td></tr>
+        <tr><td class="a">31</td><td>Separator — clears any pending modifier</td></tr>
+        <tr><td class="a">32 – 126</td><td>Printable text — ordinary letters, numbers, punctuation</td></tr>
+        <tr><td class="a">127</td><td>Line break</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:28px">
+      <div class="card">
+        <div class="lbl">State vs. modifier</div>
+        <h3 style="font-size:20px">Two kinds of byte.</h3>
+        <p>State bytes (8–29) stay in effect until replaced by another of the same kind. Modifiers (23, 24, 30) apply once, to whichever note comes next, then clear. Byte 31 clears any pending modifier immediately, even unused.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Defaults</div>
+        <h3 style="font-size:20px">Before any state byte is read.</h3>
+        <p>Middle octave · quarter note · mf · Moderato. Every unset field falls back to one of these until a miner chooses otherwise.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FIRST INSCRIPTION ============== -->
+<section id="first" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">The first inscription</span></div>
+    <h2>bit is found in memory.</h2>
+    <p class="intro">The first content ever written on-chain filled the field exactly: 64 characters, no punctuation, all 64 bytes used.</p>
+
+    <div class="callout" style="margin-bottom:24px">
+      <div class="lbl">The sentence</div>
+      <p style="font-family:var(--mono);font-size:16px;color:var(--ink);margin:10px 0 0;letter-spacing:0.01em">bit is found in memory It is the result of time and intelligence</p>
+    </div>
+
+    <p style="font-size:15px;line-height:1.65;color:var(--ink-2);max-width:760px;margin:0 0 20px">Reading it backward — last character first, first character last — and writing each character's keyboard code as a byte gives the value placed into the field before mining begins:</p>
+
+    <div class="term" style="margin-bottom:16px">
+      <div class="tlbl">nNonce · before mining</div>
+      <span class="v">65636e6567696c6c65746e6920646e6120656d697420666f20746c7573657220<br>6568742073692074492079726f6d656d206e6920646e756f6620736920746962</span>
+    </div>
+
+    <p style="font-size:15px;line-height:1.65;color:var(--ink-2);max-width:760px;margin:0 0 20px">The result of mining it:</p>
+
+    <div class="term" style="margin-bottom:16px">
+      <div class="tlbl">Result</div>
+      <div><span class="k">hash&nbsp;&nbsp;&nbsp;</span> <span class="v">f20d9055c165a5b9b1a51fd64705029d156c92cb14357e4a37fe11224850ee79</span></div>
+      <div style="margin-top:6px"><span class="k">nNonce</span> <span class="v">3c656e6567696c6c65746e6920646e6120656d697420666f20746c757365722065<br>6874207369207449207972<span class="hl">6f6d656d206e6920646e756f6620736920746962</span></span></div>
+    </div>
+
+    <p style="font-size:15px;line-height:1.65;color:var(--ink-2);max-width:760px;margin:0 0 10px">Only the first byte or two changed. Decoded back:</p>
+
+    <div class="callout" style="border-color:var(--rule);background:var(--paper)">
+      <div class="lbl" style="color:var(--muted)">Decoded</div>
+      <p style="font-family:var(--mono);font-size:16px;color:var(--ink);margin:10px 0 0;letter-spacing:0.01em">bit is found in memory It is the result of time and intelligen<span style="background:var(--accent-soft);color:var(--accent);font-weight:600">e&lt;</span></p>
+      <p style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:14px 0 0;letter-spacing:0.03em">the last two characters drifted — "ce" became "e&lt;". the rest of the sentence remains exactly as written.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== UTF-8 & PACKED MUSIC ============== -->
+<section id="music" class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">UTF-8 and packed music</span></div>
+    <h2>Every script.<br>Twice the notes.</h2>
+
+    <div class="grid-2" style="margin-bottom:36px">
+      <div class="card">
+        <div class="lbl">nonce[63] = 128</div>
+        <h3 style="font-size:22px">UTF-8 mode</h3>
+        <p>Any human script — not only Latin — fills the remaining 63 bytes directly. A zero-value byte marks the end of content if one is present; content may also fill all 63 bytes with no marker at all. If drift corrupts the final byte or two, that part decodes as a generic placeholder character rather than failing outright.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">nonce[63] = 129</div>
+        <h3 style="font-size:22px">Packed music mode</h3>
+        <p>The remaining 63 bytes are read as 126 four-bit nibbles — an upper and lower half per byte. Nibble 0 is the upper half of <span class="mono">nonce[62]</span>; nibble 125 is the lower half of <span class="mono">nonce[0]</span>. Half the range per nibble, but twice as many of them: far more notes than base mode allows.</p>
+      </div>
+    </div>
+
+    <table class="tbl" style="max-width:900px">
+      <thead><tr><th>Nibble</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="a">0</td><td>Rest</td></tr>
+        <tr><td class="a">1 – 7</td><td>Notes: C · D · E · F · G · A · B</td></tr>
+        <tr><td class="a">8</td><td>Escape — the next nibble is a control selector</td></tr>
+        <tr><td class="a">9</td><td>Inline: middle octave (restores default)</td></tr>
+        <tr><td class="a">10</td><td>Inline: quarter note (restores default)</td></tr>
+        <tr><td class="a">11</td><td>Inline: eighth note</td></tr>
+        <tr><td class="a">12</td><td>Inline: half note</td></tr>
+        <tr><td class="a">13</td><td>Inline: high octave</td></tr>
+        <tr><td class="a">14</td><td>Inline: low octave</td></tr>
+        <tr><td class="a">15</td><td>Inline: mf dynamics (restores default)</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:0.03em;margin:16px 0 0;max-width:900px">after escape (8) — selector: 0 end of stream · 1 sharp · 2 flat · 3 dot · 4 set octave (+1 nibble, 0–4) · 5 set duration (+1 nibble, 0–4) · 6 set dynamics (+1 nibble, 0–4) · 7 set tempo (+1 nibble, 0–4) · 8 separator · 9 line break · 10 natural · 11 tie · 12–15 reserved</p>
+
+    <p style="font-size:14.5px;line-height:1.65;color:var(--ink-2);max-width:760px;margin:22px 0 0">Seven of sixteen nibble values act as one-nibble shortcuts for the state changes used most often; everything else goes through the escaped form above. Ending a stream takes two nibbles — escape, then end-of-stream — so a stream of exactly 125 nibbles has no room for both; one event must be added or removed instead.</p>
+  </div>
+</section>
+
+<!-- ============== UNASSIGNED & FREE SPACE ============== -->
+<section id="free" class="section" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">Unassigned and free space</span></div>
+    <h2>Left undefined,<br>on purpose.</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="lbl">Unassigned space</div>
+        <h3 style="font-size:20px">A meaning, once given, is hard to take back.</h3>
+        <p><span class="mono">nonce[63]</span> values 130–255, and selectors 12–15 in packed music mode, are presently undefined. Leaving a value undefined costs nothing today and keeps tomorrow's question open — assigning it costs the freedom to decide differently, since anything already written under it depends on it staying what it was.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Free space</div>
+        <h3 style="font-size:20px">No rule beyond counting upward.</h3>
+        <p>Beyond requiring mining to count upward from <span class="mono">nonce[0]</span>, nothing restricts who writes into the field, what they write, or how the space is divided among a group. A group can share the same content and search independently, each across a non-overlapping range — whoever finds a valid hash first, the content belongs to all of them.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:28px">
+      <div class="lbl">Found, not written</div>
+      <p style="font-size:14.5px;line-height:1.65;color:var(--ink-2);margin:10px 0 0">Most mined nonces carry no chosen content — just whatever value happened to satisfy the target. But because base mode assigns a meaning to every value 0–127, this works in reverse too: a nonce nobody composed can still be read through the same table, and some readings happen to hold together as a melody nobody wrote. People have searched mined nonces specifically for this — not to recover a choice, but to find sequences that happen to decode as something coherent, in a space too large for it to happen often.</p>
+    </div>
+
+    <p style="font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:0.03em;line-height:1.7;max-width:820px;margin-top:28px">Once mined, a deliberately written choice becomes part of the permanent block record. It does not depend on the person who wrote it, on any particular software, or on anyone remembering it exists. Decoding it requires only the chain itself and the byte map above — both of which persist independently of any single participant.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="mark">𝕄</span></a>
+        <p class="mono" style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6;letter-spacing:0.03em">
+          A peer-to-peer currency.
+        </p>
+      </div>
+      <div><h5>Protocol</h5><ul><li><a href="https://raw.githubusercontent.com/RouteToCoast/memcoin-whitepaper/refs/heads/main/whitepaper.txt" target="_blank" rel="noopener">Whitepaper (.txt)</a></li><li><a href="Memcoin Memory.html">Memory</a></li><li><a href="Memcoin UTXO Temperature.html">UTXO Temperature (design doc)</a></li><li><a href="Memcoin TX1 TX2.html">TX1 / TX2 (design doc)</a></li></ul></div>
+      <div><h5>Participate</h5><ul><li><a href="node.html">Run a node</a></li><li><a href="https://github.com/RouteToCoast/memcoin-wallet" target="_blank" rel="noopener">Wallets</a></li><li><a href="https://github.com/RouteToCoast/memcoin" target="_blank" rel="noopener">Source</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>MEMCOIN · 2026</span>
+      <span>No trusted third party.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // build the 64-byte nonce strip: last 2 cells (drift zone) highlighted
+  const strip = document.getElementById('nonceStrip');
+  for(let i=0;i<64;i++){
+    const cell = document.createElement('div');
+    cell.className = 'nonce-cell' + (i >= 62 ? ' drift' : '');
+    strip.appendChild(cell);
+  }
+</script>
+
+</body>
+</html>
