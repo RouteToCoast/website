@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The End of ASIC Proof-of-Work — Memcoin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141311; --ink-2:#3a3732;
+    --paper:#f6f3ec; --paper-2:#efebe2;
+    --muted:#8a867c; --rule:#d9d4c7;
+    --accent:#a66a12; --accent-2:#cf8a25; --accent-soft:#ecd9ad;
+    --sans:"Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);margin:0;font-family:var(--sans)}
+  a{color:var(--accent)}
+  a:hover{color:var(--ink)}
+
+  .nav{position:sticky;top:0;z-index:20;background:rgba(246,243,236,0.92);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--rule)}
+  .nav-inner{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:28px}
+  .brand{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:0.06em;display:flex;align-items:center;text-decoration:none;color:var(--ink)}
+  .brand .mark{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);font-family:var(--mono);font-weight:500;font-size:26px;line-height:1;margin-top:-2px}
+  .navlinks{display:flex;gap:26px;flex:1}
+  .navlinks a{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none;text-transform:lowercase}
+  .navlinks a:hover{color:var(--ink)}
+  .nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;padding:9px 16px;background:var(--ink);color:var(--paper);text-decoration:none}
+  .nav-cta:hover{background:var(--accent)}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent)}
+
+  .hero{padding:76px 0 48px;border-bottom:1px solid var(--rule)}
+  .hero h1{font-family:var(--sans);font-weight:700;font-size:64px;line-height:1.02;letter-spacing:-0.03em;margin:16px 0 22px;max-width:920px}
+  .hero .lead{font-size:19px;line-height:1.6;color:var(--ink-2);max-width:680px;margin:0 0 22px}
+  .hero .meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:0.04em}
+
+  .doc-body{padding:64px 0 90px}
+  .doc-grid{display:grid;grid-template-columns:220px 1fr;gap:64px;align-items:start}
+  .toc{position:sticky;top:88px}
+  .toc .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .toc ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+  .toc li{counter-increment:toc}
+  .toc a{display:block;font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--ink-2);text-decoration:none;padding:6px 0;border-left:2px solid transparent;padding-left:12px;margin-left:-13px}
+  .toc a::before{content:counter(toc, decimal-leading-zero) " ";color:var(--muted)}
+  .toc a:hover{color:var(--ink);border-left-color:var(--rule)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent)}
+
+  article{max-width:700px}
+  article section{padding-bottom:52px;margin-bottom:52px;border-bottom:1px solid var(--rule)}
+  article section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  article h2{font-family:var(--sans);font-weight:700;font-size:32px;line-height:1.15;letter-spacing:-0.015em;margin:0 0 22px}
+  article h3{font-family:var(--sans);font-weight:700;font-size:19px;letter-spacing:-0.005em;margin:0 0 10px}
+  article p{font-size:16.5px;line-height:1.75;color:var(--ink-2);margin:0 0 20px}
+  article p:last-child{margin-bottom:0}
+  article strong{color:var(--ink);font-weight:600}
+  .section-num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.18em;text-transform:uppercase;display:block;margin-bottom:10px}
+
+  .pull{border-left:2px solid var(--accent);padding:2px 0 2px 24px;margin:28px 0}
+  .pull p{font-family:var(--sans);font-weight:600;font-size:21px;line-height:1.4;color:var(--ink);letter-spacing:-0.01em;margin:0}
+
+  .callout{border:1px solid var(--accent);background:#fbf0d4;padding:22px 24px;margin:28px 0}
+  .callout .lbl{color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;display:block}
+  .callout p{color:var(--ink-2);font-size:15px;margin:0}
+  .callout p:not(:last-child){margin-bottom:12px}
+
+  table.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;margin:24px 0}
+  .tbl th,.tbl td{border-bottom:1px solid var(--rule);padding:11px 10px;text-align:left;letter-spacing:0.01em;vertical-align:top}
+  .tbl th{font-weight:500;color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:0.12em}
+  .tbl td.a{color:var(--accent)}
+  .tbl td.m{color:var(--muted)}
+
+  .conditions{display:grid;grid-template-columns:1fr;gap:14px;margin:24px 0}
+  .cond{border:1px solid var(--rule);padding:18px 20px;background:var(--paper)}
+  .cond .n{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;display:block}
+  .cond p{margin:0;font-size:14.5px;line-height:1.6}
+
+  .timeline{border:1px solid var(--rule);background:var(--paper);padding:24px 26px;margin:24px 0}
+  .tl-row{display:grid;grid-template-columns:140px 90px 1fr;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--rule)}
+  .tl-row:last-child{border-bottom:none}
+  .tl-row .who{font-family:var(--sans);font-weight:700;font-size:14.5px;color:var(--ink)}
+  .tl-row .dur{font-family:var(--mono);font-size:13px;color:var(--accent)}
+  .tl-row .desc{font-size:13.5px;color:var(--ink-2);line-height:1.5}
+
+  .end-mark{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:0.04em;text-align:center;padding:8px 0 0}
+
+  footer{padding:56px 0 40px;border-top:1px solid var(--rule)}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+  .foot-grid h5{font-family:var(--mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:500}
+  .foot-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .foot-grid a{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none}
+  .foot-grid a:hover{color:var(--accent)}
+  .foot-bottom{margin-top:40px;border-top:1px solid var(--rule);padding-top:20px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.06em}
+
+  @media (max-width:960px){
+    .hero h1{font-size:40px}
+    .doc-grid{grid-template-columns:1fr}
+    .toc{display:none}
+    .foot-grid{grid-template-columns:1fr}
+    .navlinks{display:none}
+    .wrap,.nav-inner{padding-left:22px;padding-right:22px}
+    article h2{font-size:26px}
+    .tl-row{grid-template-columns:1fr;gap:4px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand" aria-label="Memcoin"><span class="mark">𝕄</span></a>
+    <div class="navlinks">
+      <a href="#security-condition">the condition</a>
+      <a href="#electricity">electricity</a>
+      <a href="#weaponization">weaponization</a>
+      <a href="#conclusion">conclusion</a>
+    </div>
+    <a href="index.html" style="font-family:var(--mono);font-size:12px;letter-spacing:0.04em;color:var(--ink-2);text-decoration:none">← memcoin</a>
+    <a href="node.html" class="nav-cta">Run a node →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Research</div>
+    <h1>The End of ASIC<br>Proof-of-Work.</h1>
+    <p class="lead">Bitcoin's Proof-of-Work security operates through a single mechanism: attacking the network requires controlling more computational power than all honest participants combined. That mechanism holds only when mining is the highest-value use of the electricity and hardware it consumes. This condition has failed.</p>
+    <div class="meta">Data referenced is drawn from public filings, on-chain metrics, and market data as of June 2026.</div>
+  </div>
+</header>
+
+<div class="doc-body">
+  <div class="wrap doc-grid">
+    <aside class="toc">
+      <div class="lbl">Contents</div>
+      <ol id="tocList">
+        <li><a href="#security-condition">The security condition</a></li>
+        <li><a href="#electricity">Electricity competition</a></li>
+        <li><a href="#refuge">The energy refuge</a></li>
+        <li><a href="#supply-chain">The supply chain</a></li>
+        <li><a href="#secondary-market">The secondary market</a></li>
+        <li><a href="#hashrate">Hashrate: the peak is set</a></li>
+        <li><a href="#weaponization">Weaponized hardware</a></li>
+        <li><a href="#attack-vector">The likely attacker</a></li>
+        <li><a href="#miner-transition">The miner transition</a></li>
+        <li><a href="#demand-scale">The demand scale</a></li>
+        <li><a href="#no-repair">Why the protocol can't adapt</a></li>
+        <li><a href="#three-conditions">Three conditions of security</a></li>
+        <li><a href="#causal-chain">A stable causal chain</a></li>
+        <li><a href="#compound">The compound mechanism</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+      </ol>
+    </aside>
+
+    <article>
+
+      <section id="security-condition">
+        <span class="section-num">01</span>
+        <h2>The security condition</h2>
+        <p>Bitcoin's Proof-of-Work security operates through a single mechanism: attacking the network requires controlling more computational power than all honest participants combined. The cost of acquiring and sustaining that power — in hardware and electricity — must exceed the potential reward for the mechanism to hold.</p>
+        <p>This mechanism functions only when one condition is satisfied:</p>
+        <div class="pull"><p>Mining is the highest-value use of the electricity and hardware it consumes.</p></div>
+        <p>When this condition holds, the operators of mining hardware have stronger economic reasons to protect the network than to attack it. Security and self-interest are aligned. When this condition fails, the alignment breaks.</p>
+        <p>This condition has failed.</p>
+      </section>
+
+      <section id="electricity">
+        <span class="section-num">02</span>
+        <h2>The cause: permanent electricity competition</h2>
+        <p>AI compute infrastructure generates revenue per kilowatt-hour that is largely independent of Bitcoin's price. Current-generation accelerator infrastructure, drawing approximately one kilowatt of power per compute unit including server overhead, generates $2.00 to $4.00 in revenue per kilowatt-hour.</p>
+        <p>Mining revenue per kilowatt-hour, by contrast, moves directly with Bitcoin's price and network difficulty. At Bitcoin's approximate peak price of $100,000, the network's average mining hardware generated roughly $0.08 per kilowatt-hour in gross revenue. The most efficient hardware deployed at that price level reached approximately $0.24 per kilowatt-hour. At current prices near $67,000, those figures fall to approximately $0.05 and $0.16 per kilowatt-hour respectively.</p>
+
+        <table class="tbl">
+          <thead><tr><th>Scenario</th><th>Mining revenue / kWh</th><th>AI revenue / kWh</th><th>Differential</th></tr></thead>
+          <tbody>
+            <tr><td>BTC $100,000 · average hardware</td><td class="a">$0.08</td><td class="m">$2 – $4</td><td>25 – 50×</td></tr>
+            <tr><td>BTC $100,000 · best-in-class hardware</td><td class="a">$0.24</td><td class="m">$2 – $4</td><td>8 – 17×</td></tr>
+            <tr><td>BTC $67,000 · average hardware</td><td class="a">$0.05</td><td class="m">$2 – $4</td><td>&gt;40×</td></tr>
+            <tr><td>BTC $67,000 · best-in-class hardware</td><td class="a">$0.16</td><td class="m">$2 – $4</td><td>&gt;12×</td></tr>
+          </tbody>
+        </table>
+
+        <p>The gap is not a function of Bitcoin's current weakness. It is a function of the structural difference in value production between the two technologies. For mining to reach parity with AI infrastructure at the lower end of current AI pricing, Bitcoin would need to sustain prices above $1,000,000 per coin — a level at which the mining economics argument is the least of any holder's concerns.</p>
+        <p>The consequence is that industrial electricity — the resource on which Bitcoin's security model depends — now has a permanently higher-value competing use across all realistic market conditions. Electricity markets respond to higher bidders. Mining cannot match the prices AI operators pay.</p>
+      </section>
+
+      <section id="refuge">
+        <span class="section-num">03</span>
+        <h2>The energy refuge: an insufficient defense</h2>
+        <p>A counterargument exists: remote regions with genuinely cheap electricity — stranded hydroelectric power, geothermal sources, flared gas — represent locations where AI cannot economically deploy, and where mining therefore remains the optimal use of available energy.</p>
+        <p>The argument misidentifies the nature of the security requirement. The question is not whether mining remains the optimal use of electricity in some locations. The question is whether the hashrate generated by those locations is sufficient to defend the network against attack.</p>
+
+        <div class="callout">
+          <span class="lbl">Scale of AI-inaccessible mining</span>
+          <p>Stranded natural gas: 507 MW, 3.3% of the industry's energy mix. Remote hydroelectric (Paraguay ~4.3%, Laos ~0.9%, and comparable jurisdictions): an additional 3–5% of global hashrate. The United States, China, and Russia together control ~68% of global hashrate — all in locations compatible with AI data center deployment.</p>
+          <p>Total hashrate genuinely beyond AI's reach: <strong>approximately 5 to 8%</strong> of the global network — insufficient to defend against an attack requiring only 30 to 40% of total hashrate to produce visible disruption.</p>
+        </div>
+
+        <p>The hardware retired by transitioning miners does not disappear. Operations that complete the transition to AI may retain their ASIC hardware; those that sell require only a price above scrap value to transact. The attacks that follow do not require competing for cheap electricity in remote regions — they require only that the cost of running existing hardware during the attack window is less than the profit generated by the short position.</p>
+        <p>The price decline caused by attacks then eliminates the economic basis for even the most favorably situated remote mining, since mining revenue is denominated in Bitcoin. The small remote miners do not constitute the network's last line of defense. They are the last to leave it.</p>
+      </section>
+
+      <section id="supply-chain">
+        <span class="section-num">04</span>
+        <h2>The supply chain: a ratchet with one direction</h2>
+        <p>New ASIC hardware requires sub-5-nanometer chip fabrication, available only at TSMC and Samsung. Both operate at capacity. AI chip production generates higher margins and represents higher strategic value to foundries than ASIC orders. Mining hardware manufacturers are losing foundry allocation priority.</p>
+        <p>Maintaining a foundry allocation requires continuously growing order volume. Manufacturers who cannot sell existing inventory cannot place larger future orders. Without larger orders, they lose their allocation permanently. This process does not pause and wait for market conditions to improve. It is terminal.</p>
+        <p>Foundry capacity that previously supported the expansion of Bitcoin's hashrate is being reallocated toward AI accelerator production at a pace the mining hardware market cannot absorb. Existing machines are a depleting stock without a replacement cycle operating at the scale the network requires.</p>
+      </section>
+
+      <section id="secondary-market">
+        <span class="section-num">05</span>
+        <h2>The secondary market: effective cessation</h2>
+        <p>Hardware that previously held a recoverable fraction of its acquisition cost now trades, when it trades at all, at prices representing a small percentage of original value. Fixed-price secondary markets have been replaced by auction mechanisms in which sellers set no floor and buyers name their own price.</p>
+        <p>The absence of a clearing price is not a feature of a depressed market. It is a feature of a market in which buyers have concluded that the asset has no reliable future value and therefore no present value worth committing capital to.</p>
+        <p>Manufacturers have responded by operating unsold inventory themselves — more accurately described as a balance sheet decision than confidence in mining economics: self-mining generates electricity revenue that partially offsets carrying costs, an outcome preferable to recording immediate inventory write-downs.</p>
+        <div class="pull"><p>The one path that would allow capital recovery without attacking the network has been removed by the market itself.</p></div>
+      </section>
+
+      <section id="hashrate">
+        <span class="section-num">06</span>
+        <h2>Hashrate: the peak is set</h2>
+        <p>Bitcoin's network hashrate reached its historical maximum in late 2025. It has not broken that record since. In the period following, downward difficulty adjustments have outnumbered upward adjustments.</p>
+        <p>For hashrate to reach new historical highs, the following conditions would need to hold simultaneously: new machines deployed at scale, a production pipeline to supply them, and electricity at prices below the threshold set by AI operator demand. None of these conditions are present.</p>
+        <p>The descent is not cyclical — it reflects the absence of the structural inputs that drove prior growth. Existing hardware ages and is retired. Marginal operations shut down. The difficulty adjustment compensates for reduced hashrate but does not reverse it. The stock of operating hardware declines monotonically.</p>
+      </section>
+
+      <section id="weaponization">
+        <span class="section-num">07</span>
+        <h2>The weaponization of stranded hardware</h2>
+        <p>Mining hardware that cannot operate profitably has three available uses: continued operation at a loss, sale at near-zero recovery value, or repurposing as an attack instrument.</p>
+        <p>The mechanism: a short position is established in Bitcoin's derivatives markets. Mining hardware is then directed at the network to produce visible disruption — empty blocks, chain reorganization attempts, detectable anomalies sufficient to trigger exchange withdrawal suspensions and market panic. The attack does not require technical success. It requires only that the disruption be visible enough to produce a rapid price decline. The short position captures that decline at leverage.</p>
+        <p>The legal question is more absent than it appears. No law in any jurisdiction prohibits a mining operation from possessing more than 50% of network hashrate, and shorting Bitcoin is legal trading activity. Bitcoin has no issuer, no board, no regulatory subject who can be summoned before a court. A prosecution for market manipulation requires a jurisdiction with authority over the manipulated asset, a legal framework defining the manipulation, an enforcement mechanism capable of reaching the defendants, and an identifiable victim. For Bitcoin, all four are simultaneously absent.</p>
+        <p>Once network hashrate falls to the threshold at which an attack is economically executable, that condition does not reverse — the threshold itself moves continuously as total network hashrate declines, making attacks progressively easier to execute. A network in which attacks are periodically executable and periodically profitable cannot provide the property its existence depends on: transaction finality.</p>
+      </section>
+
+      <section id="attack-vector">
+        <span class="section-num">08</span>
+        <h2>The most probable attack vector</h2>
+        <p>The actors most likely to execute this mechanism are not the largest mining pools and not state actors. They are mid-size mining operations that attempted and failed to complete the transition to AI infrastructure — facing a known, ongoing cash drain from mining at a loss, with ASIC hardware on the balance sheet that the secondary market will not recover.</p>
+        <p>For these operators, the attack-plus-short mechanism is not an aggressive act. It is the only remaining mechanism by which the sunk capital in ASIC hardware can generate any return before the machines become worthless through attrition.</p>
+        <p>No industry in the historical record has disappeared silently. When the mechanism available at the end of that search is the attack-plus-short trade — and when the legal risk of executing it is structurally absent — the collective logic of a financially terminal industry converges there. Individual operators may hesitate. The industry, as a collective, will not.</p>
+      </section>
+
+      <section id="miner-transition">
+        <span class="section-num">09</span>
+        <h2>The miner transition</h2>
+        <p>Mining facility infrastructure — power delivery systems, cooling capacity, network connectivity — is directly compatible with AI data center requirements. The transition from mining to AI hosting requires replacing one category of hardware within existing facilities, not construction from zero.</p>
+        <p>AI hosting contracts offer predictable, dollar-denominated revenue under long-term service agreements. Mining offers volatile revenue exposed to coin price, difficulty, and halving cycles, with no contractual floor. Capital allocates toward predictability.</p>
+        <p>Listed mining companies are selling Bitcoin to fund AI compute infrastructure, signing AI hosting contracts, and explicitly stating in regulatory filings that capital allocation to mining cannot be justified at current economics. Once power capacity is committed to long-term AI leases, it is no longer available for mining — permanently.</p>
+      </section>
+
+      <section id="demand-scale">
+        <span class="section-num">10</span>
+        <h2>The demand scale</h2>
+        <p>Bitcoin's global mining network draws approximately 15 to 20 gigawatts of continuous power. United States AI data center capacity additions are projected at 13.6 gigawatts in 2026 and 36.3 gigawatts in 2027. Global AI workload demand is projected to reach 156 gigawatts by 2030 — the mining network's total power draw is smaller than a single year of incremental AI capacity additions in the United States alone.</p>
+        <p>The primary constraint on AI data center development is access to committed industrial power at sufficient scale, not capital or demand. A large mining facility represents exactly the asset class AI operators cannot obtain through conventional development on any near-term timeline: committed grid connections at industrial scale, with existing high-voltage infrastructure already in place.</p>
+        <p>Texas operates the largest single concentration of U.S. hashrate and is simultaneously the leading destination for AI data center development, projected to exceed 40 gigawatts of capacity by 2028. The overlap is not coincidental — both industries are drawn to the same underlying asset. The transition is not commercially constrained; it is commercially compelled.</p>
+      </section>
+
+      <section id="no-repair">
+        <span class="section-num">11</span>
+        <h2>The protocol cannot repair this</h2>
+        <p>Each available adaptation pathway either destroys the condition it is meant to preserve, or fails to address the root cause.</p>
+        <h3>Changing the mining algorithm</h3>
+        <p>Retires all existing hardware instantly — eliminating the network's entire computational security at the moment the transition window is open and exposure is maximum.</p>
+        <h3>Transitioning to Proof-of-Stake</h3>
+        <p>Hands dominant influence to the entities that accumulated the most Bitcoin through leveraged institutional operations — the network designed as an alternative to institutional financial control would become controlled by institutions. The transition window itself also remains exposed: while the old mechanism is dismantled and the new one is not yet operational, holders of mining hardware have inverted incentives to attack rather than participate.</p>
+        <h3>Modifying the fixed supply cap</h3>
+        <p>Does not address the root cause. The problem is not that mining rewards are insufficient in absolute terms — it is that revenue per kilowatt-hour of mining is structurally below competing uses of that electricity, at every Bitcoin price that has historically existed. Adding block rewards changes the quantity of Bitcoin issued; it does not change the per-kilowatt-hour value of mining relative to AI.</p>
+        <p>Immutability is simultaneously the source of Bitcoin's value proposition and the barrier to the adaptation that value proposition now requires.</p>
+      </section>
+
+      <section id="three-conditions">
+        <span class="section-num">12</span>
+        <h2>The three conditions of PoW security</h2>
+        <p>Proof-of-Work security requires three conditions to hold simultaneously.</p>
+        <div class="conditions">
+          <div class="cond"><span class="n">First</span><p>Sufficient computational power that controlling a majority is prohibitively expensive. <strong>Status:</strong> hashrate is in structural decline with no production pipeline to reverse it.</p></div>
+          <div class="cond"><span class="n">Second</span><p>Operators of that power have stronger economic reasons to protect the network than to attack it. <strong>Status:</strong> miners are transitioning to AI infrastructure; those who cannot face economic logic pointing toward the attack mechanism as the only remaining path to capital recovery.</p></div>
+          <div class="cond"><span class="n">Third</span><p>No mechanism exists by which attacking the network generates a return superior to honest mining. <strong>Status:</strong> the attack-plus-short-position trade generates returns orders of magnitude larger than honest mining under current and projected conditions.</p></div>
+        </div>
+        <p>All three conditions are simultaneously absent.</p>
+      </section>
+
+      <section id="causal-chain">
+        <span class="section-num">13</span>
+        <h2>The nature of a stable causal chain</h2>
+        <p>A causal chain is stable when each link follows necessarily from the previous one — not through coincidence, not through the accumulation of errors, but through the rational responses of individual actors to the conditions they face. When every step in a sequence is individually rational, the sequence does not require external force to complete.</p>
+        <p>The historical record of stable causal chains is instructive not as analogy but as pattern:</p>
+
+        <div class="timeline">
+          <div class="tl-row"><div class="who">Rome</div><div class="dur">~200 yrs</div><div class="desc">Crisis of the Third Century to fall of the Western Empire, 476 AD. Information traveled at the speed of a courier, capital at the speed of a cart.</div></div>
+          <div class="tl-row"><div class="who">Soviet Union</div><div class="dur">6 yrs</div><div class="desc">Gorbachev's acknowledgment of structural failure (1985) to dissolution (1991) — compressed by a faster information environment, still bounded by that era's infrastructure.</div></div>
+          <div class="tl-row"><div class="who">Bitcoin</div><div class="dur">real-time</div><div class="desc">Structural failure observable in public data since 2025 — hashrate, difficulty, and miner flows visible to every participant simultaneously, updated with each block.</div></div>
+        </div>
+
+        <p>What this reveals is a specific property of systems in which a causal chain has become stable but has not yet completed: the apparent solidity of the system is real, but it is a product of past performance, not present structural integrity. The belief in a system's permanence is based on the fact of its past permanence — an inference that fails precisely when the conditions that made permanence possible have changed.</p>
+        <p>The current public discourse on Bitcoin shows near-unanimous confidence in a cyclical interpretation at precisely the moment every relevant data signal points in the opposite direction. Every institution holding Bitcoin, every mining company, every exchange, every media outlet covering it arrives independently at the same rational conclusion: maintain the prevailing narrative while managing their own position. No coordinating meeting is required — only a set of interest structures producing identical behavior across an entire ecosystem.</p>
+        <p>The closest structural parallel is the period before the 2008 subprime crisis: a small number of analysts had assembled the complete picture, the mainstream narrative rested on historical evidence that had ceased to describe current reality, and a short mechanism gave those who understood the risk every reason to build positions quietly rather than speak publicly.</p>
+      </section>
+
+      <section id="compound">
+        <span class="section-num">14</span>
+        <h2>The compound mechanism</h2>
+        <p>The structural failures described above do not operate as independent, sequential events. They interact through a feedback loop in which each step generates information, that information is transmitted instantly to all participants, and the responses those participants take advance the next step.</p>
+        <p>Mining companies sell Bitcoin to fund AI infrastructure. Selling pressure depresses price. A lower price reduces mining revenue while raising the relative cost of AI infrastructure — the transition window closes for those who hesitated. They are stranded with near-worthless hardware, mining at a loss. Further miners exit. Hashrate falls. The attack threshold becomes easier to reach. An attack occurs. Price falls sharply. The cycle advances.</p>
+        <p>Every step generates observable data — wallet flows, difficulty adjustments announced every two weeks, corporate disclosures, derivatives positioning, exchange withdrawal volumes — read by every participant at the same moment. Instant, universal information access eliminates the intervals between spiral steps that would otherwise allow corrective action.</p>
+        <p>Short positions profit from the transmission of deterioration, giving the actors who hold them financial incentive to accelerate each step rather than wait for the spiral to advance on its own schedule. What required 200 years under Roman conditions, and 6 years under mid-twentieth-century conditions, can complete — under this compound mechanism — in the interval between a visible triggering event and the exhaustion of exchange liquidity.</p>
+      </section>
+
+      <section id="conclusion">
+        <span class="section-num">15</span>
+        <h2>Conclusion</h2>
+        <p>The economic condition that made Proof-of-Work security viable — the alignment between miner self-interest and network protection — has been permanently disrupted by a technology that generates higher value from the same resource that mining requires.</p>
+        <p>The ASIC supply chain is contracting. The secondary market for mining hardware has effectively ceased to function, removing the last capital recovery option for stranded operators outside of the attack mechanism. Hashrate has peaked and will not recover under present conditions. Stranded hardware is being converted from a security instrument into an attack instrument by financial logic, without requiring coordination or malicious intent. The protocol cannot adapt without destroying what it is adapting.</p>
+        <p>The three structural conditions that define Proof-of-Work security are simultaneously absent.</p>
+        <div class="pull"><p>Bitcoin's Proof-of-Work security model does not have a foundation on which it currently operates. The causal chain is complete. Each step has begun. What follows is not a crisis that resolves. It is a condition that persists.</p></div>
+        <div class="end-mark">◆</div>
+      </section>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="mark">𝕄</span></a>
+        <p class="mono" style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6;letter-spacing:0.03em">
+          A peer-to-peer currency.
+        </p>
+      </div>
+      <div><h5>Protocol</h5><ul><li><a href="https://raw.githubusercontent.com/RouteToCoast/memcoin-whitepaper/refs/heads/main/whitepaper.txt" target="_blank" rel="noopener">Whitepaper (.txt)</a></li><li><a href="Memcoin Memory.html">Memory</a></li><li><a href="Memcoin UTXO Temperature.html">UTXO Temperature (design doc)</a></li><li><a href="Memcoin TX1 TX2.html">TX1 / TX2 (design doc)</a></li></ul></div>
+      <div><h5>Participate</h5><ul><li><a href="node.html">Run a node</a></li><li><a href="https://github.com/RouteToCoast/memcoin-wallet" target="_blank" rel="noopener">Wallets</a></li><li><a href="https://github.com/RouteToCoast/memcoin" target="_blank" rel="noopener">Source</a></li><li><a href="https://bitcointalk.org/index.php?topic=5578125.0" target="_blank" rel="noopener">Bitcointalk</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>MEMCOIN · 2026</span>
+      <span>No trusted third party.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // TOC active-section highlight on scroll
+  const tocLinks = [...document.querySelectorAll('#tocList a')];
+  const sections = tocLinks.map(a => document.querySelector(a.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      const idx = sections.indexOf(e.target);
+      if (idx === -1) return;
+      if (e.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        tocLinks[idx].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => s && io.observe(s));
+</script>
+
+</body>
+</html>
